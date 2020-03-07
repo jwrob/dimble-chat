@@ -1,0 +1,8 @@
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/bin/Debug/netcoreapp3.1/DimbleChat.deps.json
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/bin/Debug/netcoreapp3.1/DimbleChat.dll
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/bin/Debug/netcoreapp3.1/DimbleChat.pdb
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/obj/Debug/netcoreapp3.1/DimbleChat.csprojAssemblyReference.cache
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/obj/Debug/netcoreapp3.1/DimbleChat.AssemblyInfoInputs.cache
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/obj/Debug/netcoreapp3.1/DimbleChat.AssemblyInfo.cs
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/obj/Debug/netcoreapp3.1/DimbleChat.dll
+/Users/jamesroberts/repos/personal/dimble-chat/src/DimbleChat/DimbleChat/obj/Debug/netcoreapp3.1/DimbleChat.pdb
