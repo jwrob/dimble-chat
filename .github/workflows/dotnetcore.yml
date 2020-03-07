@@ -18,4 +18,6 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build with dotnet
-      run: dotnet build --configuration Release ./src/DimbleChat.sln
+      run: dotnet build ./src/DimbleChat.sln --configuration Release
+    _ name: Run tests with dotnet
+      run: dotnet test ./src/DimbleChat.sln
