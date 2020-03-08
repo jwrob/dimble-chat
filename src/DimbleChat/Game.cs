@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -53,10 +54,16 @@ namespace DimbleChat
                 {
                     if (!(message is ChatMessage chatMessage)) return;
 
+                    // the message is not for this user
+                    if ((chatMessage.From != userIdentifier && chatMessage.To != userIdentifier)
+                        // and the message is not to the public channel
+                        && (chatMessage.To != ChatMessage.PublicChannelName)
+                        // and the user is not the gm (they could possibly see everything)
+                        && (userIdentifier != GmIdentifier)) return;
+
                     await action(chatMessage);
                 }
             };
-            throw new NotImplementedException();
         }
 
         public void AddPlayer(IPlayer player)
@@ -71,7 +78,7 @@ namespace DimbleChat
             // sender or recipient is not playing
             if (Players.All(p => p.Identifier != @from) || Players.All(p => p.Identifier != to))
                 return;
-            
+
             Messages.Add(new ChatMessage(DateTimeOffset.Now, from, to, text));
         }
     }
