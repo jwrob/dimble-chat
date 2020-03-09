@@ -37,11 +37,12 @@ namespace DimbleChat.Tests
             Assert.Equal(2, counter);
             Assert.Equal("hello worldhello world", message);
 
-            async Task Handler(ChatMessage m)
+            Task Handler(ChatMessage m)
             {
                 message += m.Text;
                 counter++;
                 TestOutputHelper.WriteLine($"{m}");
+                return Task.CompletedTask;
             }
         }
 
@@ -78,28 +79,32 @@ namespace DimbleChat.Tests
             Assert.Equal(2, p2Counter);
             Assert.Equal(1, p3Counter);
 
-            async Task GmHandler(ChatMessage m)
+            Task GmHandler(ChatMessage m)
             {
                 gmCounter++;
                 TestOutputHelper.WriteLine($"gm {m}");
+                return Task.CompletedTask;
             }
 
-            async Task P1Handler(ChatMessage m)
+            Task P1Handler(ChatMessage m)
             {
                 p1Counter++;
                 TestOutputHelper.WriteLine($"p1 {m}");
+                return Task.CompletedTask;
             }
 
-            async Task P2Handler(ChatMessage m)
+            Task P2Handler(ChatMessage m)
             {
                 p2Counter++;
                 TestOutputHelper.WriteLine($"p2 {m}");
+                return Task.CompletedTask;
             }
 
-            async Task P3Handler(ChatMessage m)
+            Task P3Handler(ChatMessage m)
             {
                 p3Counter++;
                 TestOutputHelper.WriteLine($"p2 {m}");
+                return Task.CompletedTask;
             }
         }
     }
