@@ -1,32 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DimbleChat
 {
-    public interface IGame
-    {
-        void SendMessage(string from, string to, string text);
-        void SendMessage(IPlayer from, IPlayer to, string text);
-        void SendPublicMessage(IPlayer from, string text);
-        IPlayer GameMaster { get; }
-        ReadOnlyObservableCollection<IPlayer> AllPlayers { get; }
-        ReadOnlyObservableCollection<ChatMessage> AllMessages { get; }
-        void NoticeMessagesForUserAsync(IPlayer user, Func<ChatMessage, Task> action);
-        IPlayer AddPlayer(IPlayer player);
-    }
-
-    public interface IPlayer
-    {
-        public bool IsGm { get; }
-        public string DisplayName { get; }
-        public string Identifier { get; }
-    }
-
     public class Game : IGame
     {
         private readonly string GmIdentifier;
@@ -92,11 +71,6 @@ namespace DimbleChat
             Messages.Add(new ChatMessage(DateTimeOffset.Now, from, to, text));
         }
 
-        public void SendMessage(IPlayer @from, IPlayer to, string text)
-        {
-            throw new NotImplementedException();
-        }
-
         public void SendPublicMessage(IPlayer @from, string text)
         {
             if (from == null) throw new ArgumentNullException(nameof(from));
@@ -106,45 +80,5 @@ namespace DimbleChat
 
             Messages.Add(new ChatMessage(DateTimeOffset.Now, from.Identifier, ChatMessage.PublicChannelName, text));
         }
-    }
-
-    public class ChatMessage
-    {
-        internal const string PublicChannelName = "public-chat";
-
-        public ChatMessage(DateTimeOffset timestamp, string from, string to, string text)
-        {
-            Timestamp = timestamp;
-            From = @from;
-            To = to;
-            Text = text;
-        }
-
-        public DateTimeOffset Timestamp { get; }
-        public string From { get; }
-        public string To { get; }
-        public string Text { get; }
-
-        public override string ToString()
-        {
-            return $"from:{From} | to:{To} | text:{Text} | timestamp:{Timestamp}";
-        }
-    }
-
-    public class Player : IPlayer
-    {
-        public Player(string displayName, string identifier, bool isGm)
-        {
-            if (string.IsNullOrWhiteSpace(displayName)) throw new ArgumentNullException(nameof(displayName));
-            if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
-
-            DisplayName = displayName;
-            Identifier = identifier;
-            IsGm = isGm;
-        }
-
-        public bool IsGm { get; }
-        public string DisplayName { get; }
-        public string Identifier { get; }
     }
 }
