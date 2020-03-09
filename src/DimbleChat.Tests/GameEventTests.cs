@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,7 +15,7 @@ namespace DimbleChat.Tests
         }
 
         [Fact]
-        public void NoobEvent()
+        public void EventingWorks()
         {
             IGame game = new Game(
                 new List<IPlayer>(),
@@ -25,13 +24,14 @@ namespace DimbleChat.Tests
 
             var counter = 0;
             var message = "";
-            game.NoticeMessagesForUserAsync("abc", Handler);
-
-            game.NoticeMessagesForUserAsync("def", Handler);
 
 
-            game.AddPlayer(new Player("bob", "abc", false));
-            game.AddPlayer(new Player("gru", "def", false));
+            var bob = game.AddPlayer(new Player("bob", "abc", false));
+            var gru = game.AddPlayer(new Player("gru", "def", false));
+
+            game.NoticeMessagesForUserAsync(bob, Handler);
+            game.NoticeMessagesForUserAsync(gru, Handler);
+
             game.SendMessage("abc", "def", "hello world");
 
             Assert.Equal(2, counter);
@@ -41,7 +41,65 @@ namespace DimbleChat.Tests
             {
                 message += m.Text;
                 counter++;
-                TestOutputHelper.WriteLine($"to:{m.To} from:{m.From} Text:{m.Text}");
+                TestOutputHelper.WriteLine($"{m}");
+            }
+        }
+
+        [Fact]
+        public void PublicChatMessagesGoToEveryone()
+        {
+            IGame game = new Game(
+                new List<IPlayer>(),
+                "gm-here",
+                new List<ChatMessage>());
+
+            var gm = game.AddPlayer(new Player("GameMaster!", "gm-here", true));
+            var p1 = game.AddPlayer(new Player("bob", "1234", false));
+            var p2 = game.AddPlayer(new Player("harry", "9876", false));
+            var p3 = game.AddPlayer(new Player("tom", "7878", false));
+
+            Assert.Equal(4, game.AllPlayers.Count);
+
+            var gmCounter = 0;
+            var p1Counter = 0;
+            var p2Counter = 0;
+            var p3Counter = 0;
+
+            game.NoticeMessagesForUserAsync(gm, GmHandler);
+            game.NoticeMessagesForUserAsync(p1, P1Handler);
+            game.NoticeMessagesForUserAsync(p2, P2Handler);
+            game.NoticeMessagesForUserAsync(p3, P3Handler);
+
+            game.SendPublicMessage(p2, "hello everyone");
+            game.SendMessage(p1.Identifier, p2.Identifier, "you scoundrel");
+
+            Assert.Equal(2, gmCounter);
+            Assert.Equal(2, p1Counter);
+            Assert.Equal(2, p2Counter);
+            Assert.Equal(1, p3Counter);
+
+            async Task GmHandler(ChatMessage m)
+            {
+                gmCounter++;
+                TestOutputHelper.WriteLine($"gm {m}");
+            }
+
+            async Task P1Handler(ChatMessage m)
+            {
+                p1Counter++;
+                TestOutputHelper.WriteLine($"p1 {m}");
+            }
+
+            async Task P2Handler(ChatMessage m)
+            {
+                p2Counter++;
+                TestOutputHelper.WriteLine($"p2 {m}");
+            }
+
+            async Task P3Handler(ChatMessage m)
+            {
+                p3Counter++;
+                TestOutputHelper.WriteLine($"p2 {m}");
             }
         }
     }

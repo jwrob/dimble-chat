@@ -11,10 +11,13 @@ namespace DimbleChat
     public interface IGame
     {
         void SendMessage(string from, string to, string text);
+        void SendMessage(IPlayer from, IPlayer to, string text);
+        void SendPublicMessage(IPlayer from, string text);
         IPlayer GameMaster { get; }
+        ReadOnlyObservableCollection<IPlayer> AllPlayers { get; }
         ReadOnlyObservableCollection<ChatMessage> AllMessages { get; }
-        void NoticeMessagesForUserAsync(string userIdentifier, Func<ChatMessage, Task> action);
-        void AddPlayer(IPlayer player);
+        void NoticeMessagesForUserAsync(IPlayer user, Func<ChatMessage, Task> action);
+        IPlayer AddPlayer(IPlayer player);
     }
 
     public interface IPlayer
@@ -45,8 +48,9 @@ namespace DimbleChat
 
         public IPlayer GameMaster => Players.FirstOrDefault(player => player.IsGm);
 
-        public void NoticeMessagesForUserAsync(string userIdentifier, Func<ChatMessage, Task> action)
+        public void NoticeMessagesForUserAsync(IPlayer user, Func<ChatMessage, Task> action)
         {
+            var userIdentifier = user.Identifier;
             Messages.CollectionChanged += async (sender, args) =>
             {
                 if (args.NewItems == null) return;
@@ -66,24 +70,43 @@ namespace DimbleChat
             };
         }
 
-        public void AddPlayer(IPlayer player)
+        public IPlayer AddPlayer(IPlayer player)
         {
-            if (Players.Any(p => p.Identifier == player.Identifier)) return;
+            if (Players.Any(p => p.Identifier == player.Identifier)) return null;
 
             Players.Add(player);
+
+            return player;
         }
 
         public void SendMessage(string from, string to, string text)
         {
+            if (string.IsNullOrWhiteSpace(from)) throw new ArgumentNullException(nameof(from));
+            if (string.IsNullOrWhiteSpace(to)) throw new ArgumentNullException(nameof(to));
+            if (string.IsNullOrWhiteSpace(text)) throw new ArgumentNullException(nameof(text));
+
             // sender or recipient is not playing
             if (Players.All(p => p.Identifier != @from) || Players.All(p => p.Identifier != to))
                 return;
 
             Messages.Add(new ChatMessage(DateTimeOffset.Now, from, to, text));
         }
-    }
 
-    public class Chat { }
+        public void SendMessage(IPlayer @from, IPlayer to, string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendPublicMessage(IPlayer @from, string text)
+        {
+            if (from == null) throw new ArgumentNullException(nameof(from));
+            if (string.IsNullOrWhiteSpace(text)) throw new ArgumentNullException(nameof(text));
+
+            if (Players.All(p => p.Identifier != from.Identifier)) return;
+
+            Messages.Add(new ChatMessage(DateTimeOffset.Now, from.Identifier, ChatMessage.PublicChannelName, text));
+        }
+    }
 
     public class ChatMessage
     {
@@ -101,12 +124,20 @@ namespace DimbleChat
         public string From { get; }
         public string To { get; }
         public string Text { get; }
+
+        public override string ToString()
+        {
+            return $"from:{From} | to:{To} | text:{Text} | timestamp:{Timestamp}";
+        }
     }
 
     public class Player : IPlayer
     {
         public Player(string displayName, string identifier, bool isGm)
         {
+            if (string.IsNullOrWhiteSpace(displayName)) throw new ArgumentNullException(nameof(displayName));
+            if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
+
             DisplayName = displayName;
             Identifier = identifier;
             IsGm = isGm;

@@ -81,5 +81,63 @@ namespace DimbleChat.Tests
 
             Assert.Single(game.AllMessages);
         }
+
+        [Fact]
+        public void SendMessageNullFromThrowsException()
+        {
+            IGame game = TestGame;
+
+            Exception ex = Assert.Throws<ArgumentNullException>(
+                () => { game.SendMessage(null, "123", "123"); });
+        }
+
+        [Fact]
+        public void SendMessageNullToThrowsException()
+        {
+            IGame game = TestGame;
+
+            Exception ex = Assert.Throws<ArgumentNullException>(
+                () => { game.SendMessage("asd", null, ""); });
+        }
+
+        [Fact]
+        public void SendMessageNullTextThrowsException()
+        {
+            IGame game = TestGame;
+
+            Exception ex = Assert.Throws<ArgumentNullException>(
+                () => { game.SendMessage("asd", "bar", null); });
+        }
+
+        [Fact]
+        public void SendPublicMessageNullFromThrowsException()
+        {
+            IGame game = TestGame;
+
+            Exception ex = Assert.Throws<ArgumentNullException>(
+                () => { game.SendPublicMessage(null, "hello world"); });
+        }
+
+        [Fact]
+        public void FindGameMasterReturnsNullWhenGMHasNotEnteredGame()
+        {
+            IGame game = TestGame;
+
+            var gm = TestGame.GameMaster;
+
+            Assert.Null(gm);
+        }
+
+        [Fact]
+        public void FindGameMasterReturnsGameMasterWhenEntered()
+        {
+            IGame game = TestGame;
+
+            game.AddPlayer(new Player("ThaGameMaster", "abc123", true));
+
+            var gm = game.GameMaster;
+
+            Assert.NotNull(gm);
+        }
     }
 }
